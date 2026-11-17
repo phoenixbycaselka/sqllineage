@@ -8,6 +8,7 @@ from sqllineage.core.parser.sqlfluff.utils import (
     list_child_segments,
 )
 from sqllineage.utils.entities import AnalyzerContext
+from sqllineage.utils.helpers import escape_identifier_name
 
 
 class UpdateExtractor(BaseExtractor):
@@ -86,11 +87,10 @@ class UpdateExtractor(BaseExtractor):
                 )
                 target_table = None
                 if potential_table_alias is not None and from_join_tables:
+                    # table.alias is escaped (lower case, quotes removed), compare likewise
+                    escaped_alias = escape_identifier_name(potential_table_alias)
                     for table in from_join_tables:
-                        if (
-                            hasattr(table, "alias")
-                            and table.alias == potential_table_alias
-                        ):
+                        if hasattr(table, "alias") and table.alias == escaped_alias:
                             target_table = table
                             holder.add_write(table)
                             # set to None to indicate resolved
