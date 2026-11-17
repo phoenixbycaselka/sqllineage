@@ -199,7 +199,8 @@ class SqlParseColumn(Column):
             # ignore function dtypes that don't need to check for extract column
             FUNC_DTYPE = ["decimal", "numeric", "varchar"]
             has_function = any(
-                isinstance(t, Function) and t.get_real_name() not in FUNC_DTYPE
+                isinstance(t, Function)
+                and (t.get_real_name() or "").lower() not in FUNC_DTYPE
                 for t in token.tokens
             )
             is_kw = (
@@ -211,7 +212,10 @@ class SqlParseColumn(Column):
                 # real name is None: col1=1 AS int
                 real_name is None
                 # real_name is decimal: case when col1 > 0 then col2 else col3 end as decimal(18, 0)
-                or (real_name in FUNC_DTYPE and isinstance(token.tokens[-1], Function))
+                or (
+                    real_name.lower() in FUNC_DTYPE
+                    and isinstance(token.tokens[-1], Function)
+                )
                 or (is_kw and has_function)
             ):
                 source_columns = [
