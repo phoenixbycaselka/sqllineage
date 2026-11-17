@@ -26,11 +26,12 @@ class TargetHandler(NextTokenBaseHandler):
         if (
             self.indicator is True
             and token.is_keyword
-            and token.normalized == "IF NOT EXISTS"
+            and " ".join(token.normalized.split()) == "IF NOT EXISTS"
         ):
             # special handling for CREATE TABLE IF NOT EXISTS
             # starting sqlparse v0.5.4, IF NOT EXISTS is treated as 1 keyword instead of 3
             # See https://github.com/andialbrecht/sqlparse/commit/e92a032c81d51a6645b4f8c32470481894818ba0
+            # the keyword keeps its original whitespace, e.g. "IF\nNOT EXISTS", hence the split/join
             return True
         else:
             return token.normalized in self.TARGET_TABLE_TOKENS

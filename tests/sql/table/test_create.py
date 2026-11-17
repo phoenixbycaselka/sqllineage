@@ -1,3 +1,5 @@
+import pytest
+
 from ...helpers import assert_table_lineage_equal
 
 
@@ -13,6 +15,17 @@ def test_create_if_not_exist():
     assert_table_lineage_equal(
         "CREATE TABLE IF NOT EXISTS tab1 (col1 STRING)",
         None,
+        {"tab1"},
+    )
+
+
+@pytest.mark.parametrize(
+    "if_not_exists", ["IF  NOT EXISTS", "IF\nNOT EXISTS", "if not\n\texists"]
+)
+def test_create_if_not_exist_with_irregular_whitespace(if_not_exists: str):
+    assert_table_lineage_equal(
+        f"CREATE TABLE {if_not_exists} tab1 AS SELECT * FROM tab2",
+        {"tab2"},
         {"tab1"},
     )
 
